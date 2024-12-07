@@ -1,51 +1,53 @@
-<?php 
+<?php
 
 $username = $_POST["username"];
 $password = $_POST["password"];
 
 session_start();
 
-include('../config/DatabaseConnect.php');
+require_once(__DIR__."/../config/Directories.php");
+include("../config/DatabaseConnect.php");
 
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
 
     $db = new DatabaseConnect();
     $conn = $db->connectDB();
-        
-        try {
 
-            $stmt = $conn->prepare('SELECT * FROM users WHERE username = :p_username');
-            $stmt->bindParam(':p_username',$username);
-            $stmt->execute();
-            $users = $stmt->fetchAll();
+    try {
+        $stmt = $conn->prepare('SELECT * FROM `users` WHERE username = :p_username');
+        $stmt->bindParam(':p_username', $username);
+        $stmt->execute();
+        $users = $stmt->fetchAll();
 
-            if($users){
-    
-                if(password_verify($password,$users[0]["password"])){
-                    $_SESSION = [];
-                    session_regenerate_id(true);
-                    $_SESSION['user_id'] = $users[0]['id'];
-                    $_SESSION['username'] = $users[0]['username'];
-                    $_SESSION['fullname'] = $users[0]['fullname'];
-                    $_SESSION['is_admin'] = $users[0]['is_admin'];
-                    
-                    header("location: /index.php");
-                    exit;
+        if ($users) {
+            // Verify password
+            if (password_verify($password, $users[0]["password"])) {
+                session_regenerate_id(true);
+                $_SESSION['user_id']  = $users[0]['id'];
+                $_SESSION['username'] = $users[0]['username'];
+                $_SESSION['fullname'] = $users[0]['fullname'];
+                $_SESSION['is_admin'] = $users[0]['is_admin'];
 
-                } else {
-                    header("location: /login.php?");
-                    $_SESSION["error"] = "Wrong Password";
-                    exit;
-                }
+                // Redirect to homepage
+                header("location: ".BASE_URL."index.php");
+                exit;
             } else {
-                header("location: /login.php?");
-                $_SESSION["error"] = "User Not Found";
+                // Incorrect password
+                $_SESSION["error"] = "Incorrect Password";
+                header("location: " .BASE_URL."login.php");
                 exit;
             }
-
-        } catch (Exception $e){
-            echo "Connection Failed: " . $e->getMessage();
+        } else {
+            // User not found
+            $_SESSION["error"] = "User does not exist";
+            header("location: ".BASE_URL."login.php");
+            exit;
         }
-
+    } catch (Exception $e) {
+        // Handle database connection errors
+        $_SESSION["error"] = "Connection Failed: " . $e->getMessage();
+        exit;
+    }
 }
 ?>
