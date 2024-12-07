@@ -3,20 +3,16 @@
 class DatabaseConnect{
 
     private $host = "localhost";
-    private $database = "ecommerceb2";
-    private $dbusername = "root";
-    private $dbpassword = "";
+    // private $database = "ecommerceb2";
+    //private $dbusername = "root";
+    //private $dbpassword = "";
     private $conn = null;
 
-    //$this->$host;
-
+    private $database = "ecommerce_apastoral";
+    private $dbusername = "apastoral";
+    private $dbpassword = "A124storal_2024";
 
     public function connectDB(){
-
-        /*$host = "localhost";
-        $database = "ecommerceb2";
-        $dbusername = "root";
-        $dbpassword = "";*/
         
         $dsn = "mysql: host=$this->host;dbname=$this->database;";
         try {
